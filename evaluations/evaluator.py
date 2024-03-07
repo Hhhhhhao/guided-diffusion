@@ -77,7 +77,7 @@ def main():
     print("Precision:", prec)
     print("Recall:", recall)
     
-    with open(json_path, 'r') as f:
+    with open(json_path, 'w') as f:
         json.dump(results, f, indent=4)
 
 
