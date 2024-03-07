@@ -1,6 +1,7 @@
 import argparse
 import io
 import os
+import json 
 import random
 import warnings
 import zipfile
@@ -28,7 +29,16 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("ref_batch", help="path to reference batch npz file")
     parser.add_argument("sample_batch", help="path to sample batch npz file")
+    parser.add_argument("outdir", help="path to sample batch npz file")
     args = parser.parse_args()
+
+    json_path = os.path.join(args.outdir, 'eval_clip_fid_pr.json')
+    if os.path.exists(json_path):
+        with open(json_path, 'r') as f:
+            results = json.load(f)
+    else:
+        results = {}
+    
 
     config = tf.ConfigProto(
         allow_soft_placement=True  # allows DecodeJpeg to run on CPU in Inception graph
@@ -52,12 +62,23 @@ def main():
     sample_stats, sample_stats_spatial = evaluator.read_statistics(args.sample_batch, sample_acts)
 
     print("Computing evaluations...")
-    print("Inception Score:", evaluator.compute_inception_score(sample_acts[0]))
-    print("FID:", sample_stats.frechet_distance(ref_stats))
-    print("sFID:", sample_stats_spatial.frechet_distance(ref_stats_spatial))
+    is_score = evaluator.compute_inception_score(sample_acts[0])
+    results['is'] = is_score
+    print("Inception Score:", is_score)
+    fid = sample_stats.frechet_distance(ref_stats)
+    results['fid'] = fid
+    print("FID:", fid)
+    sfid = sample_stats_spatial.frechet_distance(ref_stats_spatial)
+    results['sfid'] = sfid
+    print("sFID:", sfid)
     prec, recall = evaluator.compute_prec_recall(ref_acts[0], sample_acts[0])
+    results['prec'] = prec 
+    results['recall'] = recall
     print("Precision:", prec)
     print("Recall:", recall)
+    
+    with open(json_path, 'r') as f:
+        json.dump(results, f, indent=4)
 
 
 class InvalidFIDException(Exception):
