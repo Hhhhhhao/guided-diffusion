@@ -32,12 +32,12 @@ def main():
     parser.add_argument("outdir", help="path to sample batch npz file")
     args = parser.parse_args()
 
-    json_path = os.path.join(args.outdir, 'eval_clip_fid_pr.json')
-    if os.path.exists(json_path):
-        with open(json_path, 'r') as f:
-            results = json.load(f)
-    else:
-        results = {}
+    json_path = args.outdir
+    # if os.path.exists(json_path):
+    #     with open(json_path, 'r') as f:
+    #         results = json.load(f)
+    # else:
+    #     results = {}
     
 
     config = tf.ConfigProto(
@@ -77,8 +77,10 @@ def main():
     print("Precision:", prec)
     print("Recall:", recall)
     
-    with open(json_path, 'w') as f:
-        json.dump(results, f, indent=4)
+    with open(json_path, 'a') as f:
+        json.dump(results, f)  # Write JSON object
+        f.write('\n')  # Add a newline after each dictionary
+        print(f"Writing results to {json_path}.")
 
 
 class InvalidFIDException(Exception):
