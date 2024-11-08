@@ -38,6 +38,7 @@ def main():
     #         results = json.load(f)
     # else:
     #     results = {}
+    results = {}
     
 
     config = tf.ConfigProto(
