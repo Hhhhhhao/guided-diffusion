@@ -77,6 +77,9 @@ def main():
     results['recall'] = recall
     print("Precision:", prec)
     print("Recall:", recall)
+
+    folder = '/'.join(json_path.split('/')[:-1])
+    os.makedirs(folder, exist_ok=True)
     
     with open(json_path, 'a') as f:
         json.dump(results, f)  # Write JSON object
